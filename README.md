@@ -118,8 +118,6 @@ Tumor/normal pairing is resolved automatically by sample name convention (`SAMPL
 └── logs/              # Per-rule logs
 ```
 
----
-
 ## Requirements
 
 - [Snakemake](https://snakemake.readthedocs.io) ≥ 7.0
@@ -127,6 +125,11 @@ Tumor/normal pairing is resolved automatically by sample name convention (`SAMPL
 - All tool environments are defined in `workflow/envs/` and installed automatically with `--use-conda`
 
 ---
+
+## Publications
+
+Developed in support of PITCHER: Predictor of ImmunoTherapy response by Classifying Herv-k ExpRession (Provisional Patent #: D-11459)
+Co-Inventor: Lishomwa C. Ndhlovu - Weill Cornell Medicine
 
 ## License
 
