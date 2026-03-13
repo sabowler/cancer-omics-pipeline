@@ -128,17 +128,6 @@ Tumor/normal pairing is resolved automatically by sample name convention (`SAMPL
 
 ---
 
-## Publications
-
-This pipeline was developed in support of:
-
-- Bowler SA et al. *A machine learning approach utilizing DNA methylation as an accurate classifier of COVID-19 disease severity.* Scientific Reports (2022)
-- Premeaux TA, Bowler SA et al. *Machine learning models based on fluid immunoproteins that predict non-AIDS adverse events in people with HIV.* iScience (2024)
-
-Full publication list: [Google Scholar](https://scholar.google.com/citations?user=qM-DZhMAAAAJ)
-
----
-
 ## License
 
 MIT
