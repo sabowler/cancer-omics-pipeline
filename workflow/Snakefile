@@ -1,0 +1,93 @@
+"""
+cancer-omics-pipeline — Snakemake workflow
+
+Modules:
+  1. Trimmomatic   — adapter trimming and quality filtering
+  2. STAR / HISAT2 — RNA-seq alignment
+  3. HTSeq         — read counting
+  4. DESeq2        — differential expression
+  5. Bowtie2+GATK  — DNA alignment, duplicate marking, BQSR
+  6. MSI           — microsatellite instability (msisensor-pro)
+  7. TMB           — tumor mutational burden (Mutect2 + Funcotator)
+  8. Pathoscope    — microbiome profiling
+
+Usage:
+  snakemake --configfile configs/config.yaml --cores 16
+  snakemake --configfile configs/config.yaml --cores 16 --use-conda
+"""
+
+import pandas as pd
+from pathlib import Path
+
+# ---------------------------------------------------------------------------
+# Config & sample sheet
+# ---------------------------------------------------------------------------
+configfile: "configs/config.yaml"
+
+PROJ        = Path(config["project_dir"])
+SAMPLES_TSV = config.get("samples_tsv", "configs/samples.tsv")
+samples     = pd.read_csv(SAMPLES_TSV, sep="\t", index_col="sample")
+
+TUMOR_SAMPLES  = samples[samples["type"] == "tumor"].index.tolist()
+NORMAL_SAMPLES = samples[samples["type"] == "normal"].index.tolist()
+ALL_SAMPLES    = samples.index.tolist()
+
+ALIGNER = config.get("aligner", "star")
+
+# ---------------------------------------------------------------------------
+# Helper: paired tumor-normal sample names
+# ---------------------------------------------------------------------------
+def get_paired_normal(tumor_sample):
+    """Return the matching normal sample name for a tumor (convention: strip _T suffix or append N)."""
+    base = tumor_sample.rstrip("_T")
+    normal = base + "N"
+    if normal in samples.index:
+        return normal
+    raise ValueError(f"No matching normal found for tumor sample: {tumor_sample}")
+
+# ---------------------------------------------------------------------------
+# Target rule — collect all final outputs
+# ---------------------------------------------------------------------------
+rule all:
+    input:
+        # Trimmed FASTQ
+        expand(str(PROJ / "fastq/trimmed/{sample}_trimmed_1.fastq"), sample=ALL_SAMPLES)
+            if config["modules"]["trimmomatic"] else [],
+
+        # Alignments
+        expand(str(PROJ / "bam/{sample}.bam"), sample=ALL_SAMPLES)
+            if (config["modules"]["star"] or config["modules"]["hisat2"] or config["modules"]["bowtie2"]) else [],
+
+        # HTSeq counts
+        expand(str(PROJ / "htseq/{sample}.tsv"), sample=ALL_SAMPLES)
+            if config["modules"]["htseq"] else [],
+
+        # DESeq2 results
+        [str(PROJ / "deseq2/results.xlsx")]
+            if config["modules"]["deseq2"] else [],
+
+        # MSI scores
+        [str(PROJ / "MSI/MSI.Merged.xlsx")]
+            if config["modules"]["msi"] else [],
+
+        # TMB MAF files
+        expand(str(PROJ / "TMB/{sample}.maf"), sample=TUMOR_SAMPLES)
+            if config["modules"]["tmb"] else [],
+
+        # Pathoscope reports
+        expand(str(PROJ / "Pathoscope_GRCh38.CHM13v2/{sample}-sam-report.tsv"), sample=ALL_SAMPLES)
+            if config["modules"]["pathoscope"] else [],
+
+
+# ---------------------------------------------------------------------------
+# Include modular rule files
+# ---------------------------------------------------------------------------
+include: "rules/trimmomatic.smk"
+include: "rules/star.smk"
+include: "rules/hisat2.smk"
+include: "rules/htseq.smk"
+include: "rules/deseq2.smk"
+include: "rules/bowtie2.smk"
+include: "rules/msi.smk"
+include: "rules/tmb.smk"
+include: "rules/pathoscope.smk"

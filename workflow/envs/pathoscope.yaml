@@ -1,0 +1,4 @@
+name: pathoscope
+channels: [bioconda, conda-forge, defaults]
+dependencies:
+  - pathoscope=2.0.7

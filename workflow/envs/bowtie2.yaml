@@ -1,0 +1,5 @@
+name: bowtie2
+channels: [bioconda, conda-forge, defaults]
+dependencies:
+  - bowtie2=2.5.3
+  - samtools=1.18

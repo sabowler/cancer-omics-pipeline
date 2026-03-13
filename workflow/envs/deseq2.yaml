@@ -1,0 +1,6 @@
+name: deseq2
+channels: [bioconda, conda-forge, defaults]
+dependencies:
+  - bioconductor-deseq2=1.42.0
+  - r-openxlsx=4.2.5
+  - r-base=4.3

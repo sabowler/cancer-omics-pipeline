@@ -1,0 +1,92 @@
+# =============================================================================
+# cancer-omics-pipeline configuration
+# =============================================================================
+# All paths are absolute. Replace with your environment's paths before running.
+
+# --- Study -------------------------------------------------------------------
+study_id: "phs000980"
+project_dir: "/data/projects/Cancer/phs000980"   # Root directory for this study
+tmp_dir: "/tmp/snakemake"
+
+# --- Reference files ---------------------------------------------------------
+references:
+  genome_fasta:   "/data/references/Human/GRCh38.fa"
+  genome_index:   "/data/references/Human/GRCh38"          # Bowtie2 index prefix
+  star_index:     "/data/references/hg38+HIV1+GFP/STAR"
+  hisat2_index:   "/data/references/Human_HIV_GFP/Human_HIV_GFP"
+  gtf:            "/data/references/hg38+HIV1+GFP/hg38HIV1GFP.gtf"
+  adapters:       "/data/references/adapters.fa"
+  gnomad_vcf:     "/data/references/af-only-gnomad.hg38.vcf.gz"
+  pon_vcf:        "/data/references/1000g_pon.hg38.vcf.gz"
+  msi_sites:      "/data/references/Human/GRCh38.site"
+  funcotator_db:  "/data/references/funcotator_dataSources.v1.8.hg38.20230908s"
+
+# --- Pipeline modules (set to true/false to enable/disable) ------------------
+modules:
+  trimmomatic:  true
+  star:         true
+  hisat2:       false    # Use STAR or HISAT2, not both
+  htseq:        true
+  deseq2:       true
+  bowtie2:      true
+  msi:          true
+  tmb:          true
+  pathoscope:   true
+
+# --- Alignment tool (star or hisat2) -----------------------------------------
+aligner: "star"
+
+# --- Trimmomatic -------------------------------------------------------------
+trimmomatic:
+  threads: 2
+  leading: 20
+  trailing: 20
+  avgqual: 30
+  minlen: 20
+
+# --- Alignment ---------------------------------------------------------------
+star:
+  threads: 6
+  out_filter_multimap_nmax: 1
+  out_filter_match_nmin: 35
+
+hisat2:
+  threads: 2
+
+# --- HTSeq -------------------------------------------------------------------
+htseq:
+  format: "bam"
+  order: "pos"
+  mode: "intersection-strict"
+  stranded: "reverse"
+  minaqual: 1
+  type: "exon"
+  idattr: "gene_id"
+
+# --- DESeq2 ------------------------------------------------------------------
+deseq2:
+  condition_col: "condition"     # Column in sample sheet defining groups
+  reference_level: "control"    # Reference group for fold-change direction
+
+# --- Bowtie2 / GATK ----------------------------------------------------------
+bowtie2:
+  threads: 4
+
+# --- MSI ---------------------------------------------------------------------
+msi:
+  threads: 8
+
+# --- TMB ---------------------------------------------------------------------
+tmb:
+  threads: 8
+
+# --- Pathoscope --------------------------------------------------------------
+pathoscope:
+  threads: 2
+  references:
+    - "GRCh38"
+    - "CHM13v2"
+  filter_prefixes: "GRCh38,CHM13v2,phix174"
+  target_index: "Target"
+  theta_prior: 1000000
+  microbiome_dir: "/data/references/Microbiome"

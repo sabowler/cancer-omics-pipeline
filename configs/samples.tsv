@@ -1,0 +1,5 @@
+sample	type	fastq_r1	fastq_r2	condition
+SAMPLE_001	tumor	SAMPLE_001_R1.fastq	SAMPLE_001_R2.fastq	tumor
+SAMPLE_001N	normal	SAMPLE_001N_R1.fastq	SAMPLE_001N_R2.fastq	normal
+SAMPLE_002	tumor	SAMPLE_002_R1.fastq	SAMPLE_002_R2.fastq	tumor
+SAMPLE_002N	normal	SAMPLE_002N_R1.fastq	SAMPLE_002N_R2.fastq	normal
